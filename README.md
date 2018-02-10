@@ -57,14 +57,12 @@ All output files will be created under `./output`.
 ### Circos outputs (`circos.{png,svg}`)
 This is the raw output from Circos. Unfortunately, we could not figure out the appropriate way to make our [highlights](http://circos.ca/documentation/tutorials/highlights/) (radial lines) over [scatter plots](http://circos.ca/documentation/tutorials/2d_tracks/scatter_plots/). To this end, we edited the svg file using Adobe Illustrator and produced the final figure.
 
-<p align="center">![fujiplot_output](./output/circos.svg)</p>
+<p align="center"><img src="output/circos.svg" width="480px"></p>
 
 
 ### Optional: a bar plot (`barplot.pdf`)
 
 This corresponds to Fig. 1a of [Kanai, M. *et al.* (2018)](http://dx.doi.org/10.1038/s41588-018-0047-6). Again, you need to do some Illustrator edits to make it pretty. You can suppress this output by setting `OUTPUT_BARPLOT = FALSE` in `fujiplot.R`.
-
-<p align="center">![fujiplot_output](./output/barplot.pdf)</p>
 
 
 ## Citation
