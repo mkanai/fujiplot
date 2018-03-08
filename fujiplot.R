@@ -39,7 +39,7 @@ traitlist_fname = args[2]
 # load data
 message("Loading input files...")
 
-df = read.table(input_fname, T, sep = "\t")
+df = read.table(input_fname, T, sep = '\t', as.is = T, quote = '', comment.char = '')
 traitlist = read.table(traitlist_fname, T, sep = '\t', as.is = T, quote = '', comment.char = '', fileEncoding='utf-8')
 
 n_loci = length(unique(df$LOCUS_ID))
@@ -54,6 +54,15 @@ writeLines(c(
            ))
 
 input_traits = traitlist$TRAIT
+if (!all(df$TRAIT %in% input_traits)) {
+    missing_traits = setdiff(df$TRAIT, input_traits)
+    n_missing = length(missing_traits)
+    stop(sprintf("TRAIT columns mismatch.\n%d trait%s in %s %s missing from %s (%s).",
+                 n_missing, ifelse(n_missing > 1, "s", ""), input_fname,
+                 ifelse(n_missing > 1, "are", "is"), traitlist_fname,
+                 str_c(missing_traits, collapse=",")))
+}
+
 traitlist = traitlist %>% filter(TRAIT %in% df$TRAIT) %>%
                            mutate(idx = 1:n(),
                                   category_lower = str_to_lower(str_replace(CATEGORY, ' ', '_'))) %>%
