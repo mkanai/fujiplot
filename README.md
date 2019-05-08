@@ -1,4 +1,4 @@
-# <img src="https://github.githubassets.com/images/icons/emoji/unicode/1f5fb.png" width="42px"> Fuji plot <img src="https://github.githubassets.com/images/icons/emoji/unicode/1f5fb.png" width="42px">
+# :mount_fuji: Fuji plot :mount_fuji:
 a circos representation of multiple GWAS results.
 
 ## Overview
