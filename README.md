@@ -6,7 +6,7 @@ Fuji plot (a circos representation of multiple GWAS results) was developed to ef
 
 <p align="center"><img src="http://mkanai.github.io/img/Kanai2018_Fig1.svg" width="640px"></p>
 
-Fuji plot is named after <img src="https://github.githubassets.com/images/icons/emoji/unicode/1f5fb.png" width="20px"> Mt. Fuji in Japan <img src="https://github.githubassets.com/images/icons/emoji/unicode/1f5fb.png" width="20px">, whose ridge and skirts greatly resemble our figure!
+Fuji plot is named after :mount_fuji: Mt. Fuji in Japan :mount_fuji:, whose ridge and skirts greatly resemble our figure!
 
 <p align="center"><img src="https://i.imgur.com/QXlnKZk.jpg" width="480px"></p>
 
