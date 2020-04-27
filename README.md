@@ -57,7 +57,7 @@ All output files will be created under `./output`.
 ### Circos outputs (`circos.{png,svg}`)
 This is the raw output from Circos. Unfortunately, we could not figure out the appropriate way to make our [highlights](http://circos.ca/documentation/tutorials/highlights/) (radial lines) over [scatter plots](http://circos.ca/documentation/tutorials/2d_tracks/scatter_plots/). To this end, we edited the svg file using Adobe Illustrator and produced the final figure.
 
-<p align="center"><img src="output/circos.svg" width="640px"></p>
+<p align="center"><img src="output_example/circos.svg" width="640px"></p>
 
 
 ### Optional: a bar plot (`barplot.pdf`)
