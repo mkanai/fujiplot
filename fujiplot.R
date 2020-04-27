@@ -1,18 +1,26 @@
+fullargs <- commandArgs(trailingOnly=FALSE)
+args <- commandArgs(trailingOnly=TRUE)
+
+script_name <- normalizePath(sub("--file=", "", fullargs[grep("--file=", fullargs)]))
+script_dir <- dirname(script_name)
+
 suppressMessages(library(dplyr))
 library(stringr)
 
 CIRCOS_PATH = "circos"
-CIRCOS_DEBUG_GROUP = "text,textplace"
+# CIRCOS_DEBUG_GROUP = "text,textplace"
+CIRCOS_DEBUG_GROUP = "summary"
 OUTPUT_BARPLOT = TRUE
 
 # constants
-.VERSION = "1.0.0"
-MY_COLOR_CONF = "./config/my_color.conf"
-MY_SCATTER_BACKGROUND_CONF = "./config/my_scatter_background.conf"
-HIGHLIGHT_DATA = "./data_tracks/highlights.txt"
-SCATTER_DATA = "./data_tracks/scatter.txt"
-STACKED_DATA = "./data_tracks/stacked.txt"
-LABEL_DATA = "./data_tracks/label.txt"
+.VERSION = "1.0.1"
+MY_CIRCOS_CONF = file.path(script_dir, "config", "circos.conf")
+MY_COLOR_CONF =  file.path(script_dir, "config", "my_color.conf")
+MY_SCATTER_BACKGROUND_CONF = file.path(script_dir, "config", "my_scatter_background.conf")
+HIGHLIGHT_DATA = file.path(script_dir, "data_tracks", "highlights.txt")
+SCATTER_DATA =   file.path(script_dir, "data_tracks", "scatter.txt")
+STACKED_DATA =   file.path(script_dir, "data_tracks", "stacked.txt")
+LABEL_DATA =     file.path(script_dir, "data_tracks", "label.txt")
 SCATTER_BACKGROUND_COLOR_ALPHA = 0.3
 LARGE_POINT_SIZE = 16
 SMALL_POINT_SIZE = 8
@@ -27,13 +35,16 @@ writeLines(c("******************************************************************
              "*********************************************************************"
            ))
 
-args = commandArgs(trailingOnly = T)
 if (identical(args, character(0))) {
-  args = str_c("./input_example/", c("input.txt", "traitlist.txt"))
+  args = file.path(script_dir, "input_example", c("input.txt", "traitlist.txt"))
 }
-input_fname = args[1]
-traitlist_fname = args[2]
-
+input_fname = normalizePath(args[1])
+traitlist_fname = normalizePath(args[2])
+if (length(args) > 2){
+  output_dir = normalizePath(args[3])
+} else {
+  output_dir = file.path(script_dir, 'output_example')
+}
 
 ################################################################################
 # load data
@@ -50,8 +61,14 @@ writeLines(c(
              "",
      sprintf("* Trait list: %s", traitlist_fname),
      sprintf("* Number of traits: %d (%s)", nrow(traitlist), str_c(traitlist$TRAIT, collapse = ',')),
-     sprintf("* Number of categories: %d (%s)", length(unique(traitlist$CATEGORY)), str_c(unique(traitlist$CATEGORY), collapse = ','))
+     sprintf("* Number of categories: %d (%s)", length(unique(traitlist$CATEGORY)), str_c(unique(traitlist$CATEGORY), collapse = ',')),
+             "",
+     sprintf("* Output dir: %s", output_dir)
            ))
+
+if ( ! dir.exists(output_dir) ){
+  dir.create(output_dir, showWarnings = FALSE, recursive = TRUE)
+}
 
 input_traits = traitlist$TRAIT
 if (!all(df$TRAIT %in% input_traits)) {
@@ -158,14 +175,21 @@ message(sprintf("* Label data (name of inter-categorical pleiotropic loci): %s",
 
 ################################################################################
 # call circos
-cmd = sprintf("%s -conf ./config/circos.conf -debug_group %s", CIRCOS_PATH, CIRCOS_DEBUG_GROUP)
+cmd = sprintf("%s -conf %s %s", CIRCOS_PATH, MY_CIRCOS_CONF, ifelse(CIRCOS_DEBUG_GROUP == "", "", sprintf("-debug_group %s", CIRCOS_DEBUG_GROUP)))
 writeLines(c("",
              "Calling circos to plot...",
      sprintf("* Call: %s", cmd),
              ""
            ))
+setwd(script_dir) # circos config files are specified with the relative paths
 system(cmd)
 
+# move the output file from circos to the specified location
+if (output_dir != file.path(script_dir, 'output')){
+  for(ext in c('png', 'svg')){
+    system(sprintf("mv %s %s", file.path(script_dir, 'output', sprintf('circos.%s', ext)), file.path(output_dir, sprintf('circos.%s', ext))))
+  }
+}
 
 ################################################################################
 # output bar plot
@@ -180,14 +204,13 @@ if (OUTPUT_BARPLOT) {
   bar = bar[order(bar$idx, decreasing=T),]
   rownames(bar) = bar$TRAIT
 
-  cairo_pdf("./output/barplot.pdf", width = 8, height = 8, family = "Helvetica")
+  cairo_pdf(file.path(output_dir, "barplot.pdf"), width = 8, height = 8, family = "Helvetica")
     barplot(t(bar[,c("inter_categorical", "intra_categorical", "single")]), ylim = c(0, 100), space = 0, col = c("black", "grey50", "white"))
   . = dev.off()
 }
 
-
 writeLines(c("", "",
-             "* Final circos outputs: ./output/circos.{png,svg}.",
+             sprintf("* Final circos outputs: %s.{png,svg}.", file.path(output_dir, 'circos')),
              "",
      sprintf("Finished at %s.", Sys.time())
            ))

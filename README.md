@@ -21,7 +21,7 @@ Fuji plot is named after :mount_fuji: Mt. Fuji in Japan :mount_fuji:, whose ridg
 Please add `circos` to your `PATH` or set `CIRCOS_PATH` in `fujiplot.R` appropriately.
 
 ```{sh}
-Rscript fujiplot.R input_example/input.txt input_example/traitlist.txt
+Rscript fujiplot.R input_example/input.txt input_example/traitlist.txt output_example
 ```
 
 ## Inputs
