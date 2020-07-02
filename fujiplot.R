@@ -156,11 +156,6 @@ for (i in 1:nrow(traitlist)) {
   x = subset(scatter, idx == i)
   x$value = stacked_y[x$LOCUS_ID]
   stacked_y[x$LOCUS_ID] = stacked_y[x$LOCUS_ID] + 1
-  x$parameters = str_replace_all(
-    x$parameters,
-    sprintf('glyph_size=%d|glyph_size=%d', LARGE_POINT_SIZE, SMALL_POINT_SIZE),
-    sprintf('glyph_size=%d', TINY_POINT_SIZE)
-  )
   stacked[[i]] = x
 }
 
