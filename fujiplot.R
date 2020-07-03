@@ -7,23 +7,24 @@ script_dir <- dirname(script_name)
 suppressMessages(library(dplyr))
 library(stringr)
 
+# constants
+.VERSION = "1.0.2"
+CIRCOS_CONF = file.path(script_dir, "config",      "circos.conf")
 CIRCOS_PATH = "circos"
 # CIRCOS_DEBUG_GROUP = "text,textplace"
 CIRCOS_DEBUG_GROUP = "summary"
 OUTPUT_BARPLOT = TRUE
-
-# constants
-.VERSION = "1.0.1"
-MY_CIRCOS_CONF = file.path(script_dir, "config", "circos.conf")
-MY_COLOR_CONF =  file.path(script_dir, "config", "my_color.conf")
-MY_SCATTER_BACKGROUND_CONF = file.path(script_dir, "config", "my_scatter_background.conf")
-HIGHLIGHT_DATA = file.path(script_dir, "data_tracks", "highlights.txt")
-SCATTER_DATA =   file.path(script_dir, "data_tracks", "scatter.txt")
-STACKED_DATA =   file.path(script_dir, "data_tracks", "stacked.txt")
-LABEL_DATA =     file.path(script_dir, "data_tracks", "label.txt")
 SCATTER_BACKGROUND_COLOR_ALPHA = 0.3
 LARGE_POINT_SIZE = 16
 SMALL_POINT_SIZE = 8
+
+# intermediate files
+COLOR_CONF =              file.path(script_dir, "config",      "color.conf")
+SCATTER_BACKGROUND_CONF = file.path(script_dir, "config",      "scatter_background.conf")
+HIGHLIGHT_DATA =          file.path(script_dir, "data_tracks", "highlights.txt")
+SCATTER_DATA =            file.path(script_dir, "data_tracks", "scatter.txt")
+STACKED_DATA =            file.path(script_dir, "data_tracks", "stacked.txt")
+LABEL_DATA =              file.path(script_dir, "data_tracks", "label.txt")
 
 ################################################################################
 writeLines(c("*********************************************************************",
@@ -45,6 +46,10 @@ if (length(args) > 2){
 } else {
   output_dir = file.path(script_dir, 'output_example')
 }
+
+################################################################################
+# helper func
+most_common = function(x) {tail(names(sort(table(x))), 1)}
 
 ################################################################################
 # load data
@@ -101,8 +106,8 @@ cols = traitlist %>% select(category_lower, COLOR) %>%
                             rgba = apply(floor(t((1 - SCATTER_BACKGROUND_COLOR_ALPHA) * 255 + SCATTER_BACKGROUND_COLOR_ALPHA * col2rgb(COLOR))), 1, str_c_comma))
 writeLines(c("<colors>",
              sprintf("\t%s = %s\n\talpha_%s = %s", cols$category_lower, cols$rgb, cols$category_lower, cols$rgba),
-             "</colors>"), MY_COLOR_CONF)
-message(sprintf("* Color configuration: %s", MY_COLOR_CONF))
+             "</colors>"), COLOR_CONF)
+message(sprintf("* Color configuration: %s", COLOR_CONF))
 
 
 ################################################################################
@@ -113,8 +118,8 @@ bg = data.frame(category_lower = unique(traitlist$category_lower),
                 y1 = nrow(traitlist) - cumsum(c(0,colsep))[1:length(colsep)] - 0.5)
 writeLines(c("<backgrounds>",
              sprintf("<background>\n\tcolor = alpha_%s\n\ty0 = %.1f\n\ty1 = %.1f\n</background>", bg$category_lower, bg$y0, bg$y1),
-             "</backgrounds>"), MY_SCATTER_BACKGROUND_CONF)
-message(sprintf("* Scatter background configuration: %s", MY_SCATTER_BACKGROUND_CONF))
+             "</backgrounds>"), SCATTER_BACKGROUND_CONF)
+message(sprintf("* Scatter background configuration: %s", SCATTER_BACKGROUND_CONF))
 
 
 ################################################################################
@@ -123,10 +128,9 @@ nsnps_per_locus = df %>% group_by(LOCUS_ID) %>% summarize(n = n())
 df = df %>% mutate(CHR = str_c("hs", CHR),
                    nsnps = nsnps_per_locus$n[match(LOCUS_ID, nsnps_per_locus$LOCUS_ID)])
 
-most_common = function(x) {tail(names(sort(table(x))), 1)}
 inter_categorical = df %>% group_by(LOCUS_ID) %>% summarize(CHR = most_common(CHR),
                                                             BP = most_common(BP),
-                                                            n = length(unique(CATEGORY))) %>% 
+                                                            n = length(unique(CATEGORY))) %>%
                                                   filter(n > 1)
 write.table(inter_categorical[c("CHR", "BP", "BP")], HIGHLIGHT_DATA, sep = "\t", row.names = F, col.names = F, quote = F)
 message(sprintf("* Highlights data (inter-categorical pleiotropic loci): %s", HIGHLIGHT_DATA))
@@ -161,7 +165,6 @@ stacked = stacked[order(stacked$nsnps, decreasing=T),]
 write.table(stacked[c("CHR", "BP", "BP", "value", "parameters")], STACKED_DATA, sep = "\t", row.names = F, col.names = F, quote = F)
 message(sprintf("* Stacked bar plot data (# significant SNPs per locus): %s", STACKED_DATA))
 
-
 ################################################################################
 # output label data
 label = df %>% filter(LOCUS_ID %in% inter_categorical$LOCUS_ID) %>%
@@ -175,7 +178,7 @@ message(sprintf("* Label data (name of inter-categorical pleiotropic loci): %s",
 
 ################################################################################
 # call circos
-cmd = sprintf("%s -conf %s %s", CIRCOS_PATH, MY_CIRCOS_CONF, ifelse(CIRCOS_DEBUG_GROUP == "", "", sprintf("-debug_group %s", CIRCOS_DEBUG_GROUP)))
+cmd = sprintf("%s -conf %s %s", CIRCOS_PATH, CIRCOS_CONF, ifelse(CIRCOS_DEBUG_GROUP == "", "", sprintf("-debug_group %s", CIRCOS_DEBUG_GROUP)))
 writeLines(c("",
              "Calling circos to plot...",
      sprintf("* Call: %s", cmd),
@@ -189,6 +192,18 @@ if (output_dir != file.path(script_dir, 'output')){
   for(ext in c('png', 'svg')){
     system(sprintf("mv %s %s", file.path(script_dir, 'output', sprintf('circos.%s', ext)), file.path(output_dir, sprintf('circos.%s', ext))))
   }
+}
+
+# clean-up the intermediate files
+for(f in c(
+  COLOR_CONF,
+  SCATTER_BACKGROUND_CONF,
+  HIGHLIGHT_DATA,
+  SCATTER_DATA,
+  STACKED_DATA,
+  LABEL_DATA
+)){
+  if (file.exists(f)) file.remove(f)
 }
 
 ################################################################################
