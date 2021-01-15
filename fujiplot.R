@@ -8,7 +8,7 @@ suppressMessages(library(dplyr))
 library(stringr)
 
 # constants
-.VERSION = "1.0.2"
+.VERSION = "1.0.3"
 CIRCOS_CONF = file.path(script_dir, "config",      "circos.conf")
 CIRCOS_PATH = "circos"
 # CIRCOS_DEBUG_GROUP = "text,textplace"
@@ -87,7 +87,7 @@ if (!all(df$TRAIT %in% input_traits)) {
 
 traitlist = traitlist %>% filter(TRAIT %in% df$TRAIT) %>%
                            mutate(idx = 1:n(),
-                                  category_lower = str_to_lower(str_replace(CATEGORY, ' ', '_'))) %>%
+                                  category_lower = str_replace_all(str_to_lower(CATEGORY), '[^a-z0-9_]', '_')) %>%
                            mutate(parameters = str_c('fill_color=', category_lower))
 excluded_traits = setdiff(input_traits, traitlist$TRAIT)
 writeLines(c("",
