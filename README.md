@@ -4,7 +4,7 @@ a circos representation of multiple GWAS results.
 ## Overview
 Fuji plot (a circos representation of multiple GWAS results) was developed to efficiently summarize significant SNPs across dozens of traits ([Kanai, M. *et al*., *Nat. Genet.* 2018](http://dx.doi.org/10.1038/s41588-018-0047-6)). Technically, it is a wrapper script for [Circos](http://circos.ca/), generating input data and configuration files from GWAS results.
 
-<p align="center"><img src="http://mkanai.github.io/img/Kanai2018_Fig1.svg" width="640px"></p>
+<p align="center"><img src="https://mkanai.github.io/assets/img/Kanai2018_Fig1.svg" width="640px"></p>
 
 Fuji plot is named after :mount_fuji: Mt. Fuji in Japan :mount_fuji:, whose ridge and skirts greatly resemble our figure!
 
