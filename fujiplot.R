@@ -150,7 +150,7 @@ message(sprintf("* Scatter plot data (significant loci): %s", SCATTER_DATA))
 # output inner stacked scatter plot data
 stacked = list()
 stacked_y = rep(0, n_loci)
-names(stacked_y) = 1:n_loci
+names(stacked_y) = sort(unique(scatter$LOCUS_ID))
 
 for (i in 1:nrow(traitlist)) {
   x = subset(scatter, idx == i)
