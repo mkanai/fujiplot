@@ -40,9 +40,11 @@ This file provides a concatenated list of all significant _trait-associated_ loc
 - `CATEGORY`: Trait category
 - `TRAIT`: Trait name
 - `CHR`: Chromosome
-- `BP`: Position (hg19)
+- `BP`: Position (hg19 [default] or hg38 [see below])
 - `MARKER`: Marker ID
 - `GENE`: Gene symbol
+
+Note: If your input is in hg38, please modify `./config/karyotype.conf` as `karyotype = ./../karyotypes/karyotype.human.hg38.txt`.
 
 ### Trait list (`traitlist.txt`)
 
